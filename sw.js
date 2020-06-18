@@ -1,11 +1,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.1.0/workbox-sw.js");
 var cacheStorageKey = 'xxx'
 var cacheList = [
-	'/',
-	'/index.html',
-	'/css/main.css',
-	'/app.js',
-	'/img/ic_s.png',
+	'/'
 ]
 self.addEventListener('install', e => {
 	e.waitUntil(
