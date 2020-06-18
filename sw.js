@@ -1,56 +1,44 @@
-// 缓存静态文件
-self.addEventListener('install', function(event) {
-	event.waitUntil(
-		// 缓存指定文件
-		caches.open('v1').then(function(cache) {
-			return cache.addAll([
-				'/',
-				'/index.html',
-				'/css/main.css',
-				'/app.js',
-				'/img/ic_s.png',
-			]);
+// importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.1.0/workbox-sw.js");
+var cacheStorageKey = 'xxx'
+var cacheList = [
+	'/',
+	'/index.html',
+	'/css/main.css',
+	'/app.js',
+	'/img/ic_s.png',
+]
+self.addEventListener('install', e => {
+	e.waitUntil(
+		caches.open(cacheStorageKey)
+		.then(cache => cache.addAll(cacheList))
+		.then(() => self.skipWaiting())
+	)
+})
+self.addEventListener('fetch', function(e) {
+	e.respondWith(
+		caches.match(e.request).then(function(response) {
+			if (response != null) {
+				return response
+			}
+			return fetch(e.request.url)
 		})
-	);
-});
-
-// 缓存接口数据
-self.addEventListener('fetch', function(event) {
-	event.respondWith(caches.match(event.request).then(function(response) {
-		// 匹配到请求
-		if (response !== undefined) {
-			return response;
-		} else {
-			return fetch(event.request).then(function(response) {
-				// 缓存响应数据
-				let responseClone = response.clone();
-
-				caches.open('v1').then(function(cache) {
-					cache.put(event.request, responseClone);
-				});
-				return response;
-			}).catch(function() {
-				return caches.match('/img/timg.jfif');
-			});
-		}
-	}));
-});
-
-// 更新缓存
-self.addEventListener('activate', function(event) {
-	event.waitUntil(
-		caches.keys().then(function(cacheNames) {
+	)
+})
+self.addEventListener('activate', function(e) {
+	e.waitUntil(
+		//获取所有cache名称
+		caches.keys().then(cacheNames => {
 			return Promise.all(
-				cacheNames.map(function(cacheName) {
-					// 如果有更新
-					if (cacheName !== 'v1') {
-						return caches.delete(cacheName);
-					}
+				// 获取所有不同于当前版本名称cache下的内容
+				cacheNames.filter(cacheNames => {
+					return cacheNames !== cacheStorageKey
+				}).map(cacheNames => {
+					return caches.delete(cacheNames)
 				})
-			);
-		})
-		.then(function() {
+			)
+		}).then(() => {
 			return self.clients.claim()
 		})
-	);
-});
+	)
+})
+
