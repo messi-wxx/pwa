@@ -1,0 +1,13 @@
+{
+	"name": "aql",
+	"short_name": "demo",
+	"start_url": "/index.html",
+	"display": "standalone",
+	"background_color": "#ff0000",
+	"theme_color": "#3eaf7c",
+	"icons": [{
+		"src": "/img/ic_s.png",
+		"sizes": "120x120",
+		"type": "image/png"
+	}]
+}
