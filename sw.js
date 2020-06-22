@@ -10,16 +10,30 @@ self.addEventListener('install', e => {
 		.then(() => self.skipWaiting())
 	)
 })
-self.addEventListener('fetch', function(e) {
-	e.respondWith(
-		caches.match(e.request).then(function(response) {
-			if (response != null) {
-				return response
+self.addEventListener('fetch', function(event) {
+	console.log('Handling fetch event for', event.request.url);
+
+	event.respondWith(
+		caches.match(event.request).then(function(response) {
+			if (response) {
+				console.log('Found response in cache:', response);
+
+				return response;
 			}
-			return fetch(e.request.url)
+			console.log('No response found in cache. About to fetch from network...');
+
+			return fetch(event.request).then(function(response) {
+				console.log('Response from network is:', response);
+
+				return response;
+			}).catch(function(error) {
+				console.error('Fetching failed:', error);
+
+				throw error;
+			});
 		})
-	)
-})
+	);
+});
 self.addEventListener('activate', function(e) {
 	e.waitUntil(
 		//获取所有cache名称
